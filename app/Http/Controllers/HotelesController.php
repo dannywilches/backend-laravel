@@ -24,6 +24,14 @@ class HotelesController extends Controller
      */
     public function store(Request $request)
     {
+        $valid_hotel = Hoteles::where('nit', $request->nit)->get();
+        if (count($valid_hotel)) {
+            return response()->json([
+                'errores' => $valid_hotel,
+                'mensaje' => 'El hotel con el nit ingresado ya existe.',
+                'status' => 204,
+            ], 201);
+        }
         $validate = Validator::make($request->all(), [
             'nombre' => 'required',
             'direccion' => 'required',
@@ -34,9 +42,10 @@ class HotelesController extends Controller
 
         if ($validate->fails()) {
             return response()->json([
-                'errores' => $request->num_habs,
+                'errores' => $validate,
+                'mensaje' => 'Por favor verifique los campos ingresados',
                 'status' => 204,
-            ], 204);
+            ], 201);
         }
 
         $hotel = new Hoteles;
@@ -50,6 +59,7 @@ class HotelesController extends Controller
 
         return response()->json([
             'hotel' => $hotel,
+            'mensaje' => 'Hotel Registrado',
             'status' => 201,
         ], 201);
     }

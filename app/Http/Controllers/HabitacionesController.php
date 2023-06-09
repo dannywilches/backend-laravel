@@ -35,6 +35,7 @@ class HabitacionesController extends Controller
         if ($validate->fails()) {
             return response()->json([
                 'errores' => $request->num_habs,
+                'mensaje' => 'Por favor verifique los campos ingresados',
                 'status' => 204,
             ], 201);
         }
@@ -46,23 +47,23 @@ class HabitacionesController extends Controller
 
         if (count($valid_tipo_hab) > 0) {
             return response()->json([
-                'errores' => 'Ya existe un registro de este hotel con el tipo de habitación seleccionado',
+                'mensaje' => 'Ya existe un registro de este hotel con el tipo de habitación seleccionado',
                 'status' => 204,
-            ], 204);
+            ], 201);
         }
         else if (count($valid_acomodacion) > 0) {
             return response()->json([
-                'errores' => 'Ya existe un registro de este hotel con la acomodación seleccionada',
+                'mensaje' => 'Ya existe un registro de este hotel con la acomodación seleccionada',
                 'status' => 204,
-            ], 204);
+            ], 201);
         }
         else if ($valid_num_habs) {
             if (($valid_num_habs + $request->num_habs) > $hotel_num_habs->num_habs) {
                 return response()->json([
-                    'errores' => 'No se puede exceder la cantidad de habitaciones asignadas para este hotel. Hay asignadas '.$valid_num_habs. ' y el limite son '.$hotel_num_habs->num_habs,
+                    'mensaje' => 'No se puede exceder la cantidad de habitaciones asignadas para este hotel. Hay asignadas '.$valid_num_habs. ' y el limite son '.$hotel_num_habs->num_habs,
                     'data' => $hotel_num_habs,
                     'status' => 204,
-                ], 204);
+                ], 201);
             }
         }
 
@@ -77,6 +78,7 @@ class HabitacionesController extends Controller
 
         return response()->json([
             'habitacion' => $habitacion,
+            'mensaje' => 'Acomodación de habitación registrada',
             'status' => 201,
         ], 201);
     }
