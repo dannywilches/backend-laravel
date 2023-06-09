@@ -36,7 +36,7 @@ class HotelesController extends Controller
             return response()->json([
                 'errores' => $request->num_habs,
                 'status' => 204,
-            ], 201);
+            ], 204);
         }
 
         $hotel = new Hoteles;
@@ -82,7 +82,7 @@ class HotelesController extends Controller
             return response()->json([
                 'errores' => $validate,
                 'status' => 204,
-            ], 201);
+            ], 204);
         }
 
         $hotel = Hoteles::find($id);
@@ -90,7 +90,8 @@ class HotelesController extends Controller
         if (!$hotel) {
             return response()->json([
                 'mensaje' => 'El hotel para actualizar no existe',
-            ], 404);
+                'status' => 204,
+            ], 204);
         }
 
         $hotel->nombre = $request->nombre;
@@ -103,6 +104,7 @@ class HotelesController extends Controller
 
         return response()->json([
             'hotel' => $hotel,
+            'status' => 201,
         ], 201);
     }
 
@@ -115,12 +117,14 @@ class HotelesController extends Controller
         if (!$hotel) {
             return response()->json([
                 'mensaje' => 'El hotel a eliminar no existe',
+                'status' => 204,
             ], 404);
         }
 
         $hotel->delete();
         return response()->json([
             'mensaje' => 'El hotel fue eliminado',
-        ], 200);
+            'status' => 204,
+        ], 204);
     }
 }

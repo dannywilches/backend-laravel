@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Hoteles;
 use App\Models\Habitaciones;
 
 class HabitacionesController extends Controller
@@ -37,6 +38,34 @@ class HabitacionesController extends Controller
                 'status' => 204,
             ], 201);
         }
+
+        $hotel_num_habs = Hoteles::find($request->id_hotel);
+        $valid_num_habs = Habitaciones::where('id_hotel', $request->id_hotel)->get()->sum('num_habs');
+        $valid_tipo_hab = Habitaciones::where('id_hotel', $request->id_hotel)->where('tipo_hab', $request->tipo_hab)->get();
+        $valid_acomodacion = Habitaciones::where('id_hotel', $request->id_hotel)->where('acomodacion', $request->acomodacion)->get();
+
+        if (count($valid_tipo_hab) > 0) {
+            return response()->json([
+                'errores' => 'Ya existe un registro de este hotel con el tipo de habitación seleccionado',
+                'status' => 204,
+            ], 204);
+        }
+        else if (count($valid_acomodacion) > 0) {
+            return response()->json([
+                'errores' => 'Ya existe un registro de este hotel con la acomodación seleccionada',
+                'status' => 204,
+            ], 204);
+        }
+        else if ($valid_num_habs) {
+            if (($valid_num_habs + $request->num_habs) > $hotel_num_habs->num_habs) {
+                return response()->json([
+                    'errores' => 'No se puede exceder la cantidad de habitaciones asignadas para este hotel. Hay asignadas '.$valid_num_habs. ' y el limite son '.$hotel_num_habs->num_habs,
+                    'data' => $hotel_num_habs,
+                    'status' => 204,
+                ], 204);
+            }
+        }
+
 
         $habitacion = new Habitaciones();
         $habitacion->id_hotel = $request->id_hotel;
@@ -79,7 +108,7 @@ class HabitacionesController extends Controller
             return response()->json([
                 'errores' => $validate,
                 'status' => 204,
-            ], 201);
+            ], 204);
         }
 
         $habitacion = Habitaciones::find($id);
@@ -87,7 +116,7 @@ class HabitacionesController extends Controller
         if (!$habitacion) {
             return response()->json([
                 'mensaje' => 'El habitacion para actualizar no existe',
-            ], 404);
+            ], 204);
         }
 
         $habitacion->id_hotel = $request->id_hotel;
@@ -99,6 +128,7 @@ class HabitacionesController extends Controller
 
         return response()->json([
             'habitacion' => $habitacion,
+            'status' => 201,
         ], 201);
     }
 
@@ -117,6 +147,7 @@ class HabitacionesController extends Controller
         $habitacion->delete();
         return response()->json([
             'mensaje' => 'El habitacion fue eliminado',
-        ], 200);
+            'status' => 204,
+        ], 204);
     }
 }
